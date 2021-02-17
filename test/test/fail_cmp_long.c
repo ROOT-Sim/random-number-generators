@@ -1,9 +1,9 @@
 /**
- * @file test/test/fail_cmp_str.c
+ * @file test/test/fail_cmp_long.c
  *
- * @brief Test: expected failure, different output
+ * @brief Test: expected failure, output too long
  *
- * @test Tests that a different output than expected causes a test failure.
+ * @test Tests that a longer output than expected causes a test failure.
  *
  * SPDX-FileCopyrightText: 2008-2021 HPDCS Group <rootsim@googlegroups.com>
  * SPDX-License-Identifier: GPL-3.0-only
@@ -19,6 +19,6 @@ int main(int argc, char **argv)
 }
 
 const struct test_config test_config = {
-	.expected_output_size = 2,
-	.expected_output = "ab"
+	.expected_output_size = 1,
+	.expected_output = "aa"
 };
