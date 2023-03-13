@@ -96,7 +96,7 @@ int test_hexagon(_unused void *_)
 	test_assert(CountDirections(5, topology) == 6);
 	test_assert(CountDirections(10, topology) == 6);
 
-	// Test random receiver
+	// Test random-bak receiver
 	for(unsigned i = 0; i < RANDOM_TRIALS; i++) {
 		for(unsigned j = 0; j < 20; j++) // 20 is the number of regions in this test
 			test_assert(GetReceiver(j, topology, DIRECTION_RANDOM) < CountRegions(topology));
@@ -189,7 +189,7 @@ int test_square(_unused void *_)
 	test_assert(GetReceiver(5, topology, DIRECTION_SE) == INVALID_DIRECTION);
 	test_assert(GetReceiver(5, topology, DIRECTION_SW) == INVALID_DIRECTION);
 
-	// Test random receiver
+	// Test random-bak receiver
 	for(unsigned i = 0; i < RANDOM_TRIALS; i++) {
 		for(unsigned j = 0; j < 12; j++) // 12 is the number of regions in this test
 			test_assert(GetReceiver(j, topology, DIRECTION_RANDOM) < CountRegions(topology));
@@ -235,7 +235,7 @@ int test_ring(_unused void *_)
 	test_assert(CountDirections(3, topology) == 1);
 	test_assert(CountDirections(4, topology) == 1);
 
-	// Test random receiver
+	// Test random-bak receiver
 	for(unsigned i = 0; i < RANDOM_TRIALS; i++) {
 		for(unsigned j = 0; j < 5; j++) // 5 is the number of regions in this test
 			test_assert(GetReceiver(j, topology, DIRECTION_RANDOM) < CountRegions(topology));
@@ -285,7 +285,7 @@ int test_bidring(_unused void *_)
 	test_assert(CountDirections(3, topology) == 2);
 	test_assert(CountDirections(4, topology) == 2);
 
-	// Test random receiver
+	// Test random-bak receiver
 	for(unsigned i = 0; i < RANDOM_TRIALS; i++) {
 		for(unsigned j = 0; j < 5; j++) // 5 is the number of regions in this test
 			test_assert(GetReceiver(j, topology, DIRECTION_RANDOM) < CountRegions(topology));
@@ -378,7 +378,7 @@ int test_torus(_unused void *_)
 	test_assert(GetReceiver(5, topology, DIRECTION_SE) == INVALID_DIRECTION);
 	test_assert(GetReceiver(5, topology, DIRECTION_SW) == INVALID_DIRECTION);
 
-	// Test random receiver
+	// Test random-bak receiver
 	for(unsigned i = 0; i < RANDOM_TRIALS; i++) {
 		for(unsigned j = 0; j < 12; j++) // 12 is the number of regions in this test
 			test_assert(GetReceiver(j, topology, DIRECTION_RANDOM) < CountRegions(topology));

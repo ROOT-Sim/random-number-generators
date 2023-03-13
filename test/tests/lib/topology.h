@@ -38,7 +38,7 @@ enum topology_direction {
 	DIRECTION_NW,	//!< North-west direction
 	DIRECTION_SE,	//!< South-east direction
 
-	DIRECTION_RANDOM, //!< Get a random direction, depending on the topology
+	DIRECTION_RANDOM, //!< Get a random-bak direction, depending on the topology
 };
 
 /// An invalid direction, used as error value for the functions which return a LP id
