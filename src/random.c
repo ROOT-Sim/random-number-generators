@@ -8,39 +8,55 @@
  * SPDX-FileCopyrightText: 2008-2022 HPDCS Group <rootsim@googlegroups.com>
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#include <lib/random/random.h>
+#include <ROOT-Sim/random.h>
 
-#include <core/core.h>
-#include <core/intrinsics.h>
-#include <lib/random/xoroshiro.h>
-#include <lib/random/xxtea.h>
-#include <lp/lp.h>
+#include "xoroshiro.h"
+#include "xxtea.h"
 
+#include <assert.h>
 #include <math.h>
+#include <string.h>
+#include <sys/time.h>
+
+#define intrinsics_clz(x)                                                                                              \
+	__extension__({                                                                                                \
+		assert((x) != 0);                                                                                      \
+		__builtin_choose_expr(__builtin_types_compatible_p(__typeof__(x), unsigned), __builtin_clz(x),         \
+		    __builtin_choose_expr(__builtin_types_compatible_p(__typeof__(x), unsigned long),                  \
+			__builtin_clzl(x),                                                                             \
+			__builtin_choose_expr(__builtin_types_compatible_p(__typeof__(x), unsigned long long),         \
+			    __builtin_clzll(x), (void)0)));                                                            \
+	})
+
+#define unlikely(exp) __builtin_expect((exp), 0)
+
+static uint64_t master_seed = 0;
+
+static void init(void) {
+	struct timeval t;
+
+	master_seed = ((t.tv_sec * 1000000ULL + t.tv_usec) * 1000) % INT64_MAX;
+}
+__attribute__((section(".init_array"))) __typeof__(init) *__init = init;
 
 static const uint32_t xxtea_seeding_key[4] = {UINT32_C(0xd0a8f58a), UINT32_C(0x33359424), UINT32_C(0x09baa55b),
     UINT32_C(0x80e1bdb0)};
 
-/**
- * @brief Initialize the rollbackable RNG library of the current LP
- */
-void random_lib_lp_init(lp_id_t lp_id, struct rng_ctx *rng_ctx)
+void initialize_stream(unsigned stream, struct rng_t *ctx)
 {
-	uint64_t seed = global_config.prng_seed;
-	rng_ctx->state[0] = lp_id;
-	rng_ctx->state[1] = seed;
-	rng_ctx->state[2] = lp_id;
-	rng_ctx->state[3] = seed;
-	xxtea_encode((uint32_t *)rng_ctx->state, 8, xxtea_seeding_key);
+	ctx->state[0] = stream;
+	ctx->state[1] = master_seed;
+	ctx->state[2] = stream;
+	ctx->state[3] = master_seed;
+	xxtea_encode((uint32_t *)ctx->state, 8, xxtea_seeding_key);
 }
 
 /**
  * @brief Return a random-bak 64-bit value
  * @return The random-bak number
  */
-uint64_t RandomU64(void)
+uint64_t RandomU64(struct rng_t *ctx)
 {
-	struct rng_ctx *ctx = current_lp->rng_ctx;
 	return random_u64(ctx->state);
 }
 
@@ -48,9 +64,9 @@ uint64_t RandomU64(void)
  * @brief Return a random-bak value in [0,1] according to a uniform distribution
  * @return The random-bak number
  */
-double Random(void)
+double Random(struct rng_t *ctx)
 {
-	uint64_t u_val = RandomU64();
+	uint64_t u_val = RandomU64(ctx);
 	if(unlikely(!u_val))
 		return 0.0;
 
@@ -70,12 +86,12 @@ double Random(void)
  * @brief Return a pair of independent random-bak numbers according to a Standard Normal Distribution
  * @return A pair of random-bak numbers
  */
-double Normal(void)
+double Normal(struct rng_t *ctx)
 {
 	double v1, v2, rsq;
 	do {
-		v1 = 2.0 * Random() - 1.0;
-		v2 = 2.0 * Random() - 1.0;
+		v1 = 2.0 * Random(ctx) - 1.0;
+		v2 = 2.0 * Random(ctx) - 1.0;
 		rsq = v1 * v1 + v2 * v2;
 	} while(rsq >= 1.0 || rsq == 0);
 
@@ -83,14 +99,14 @@ double Normal(void)
 	return v1 * fac; // also v2 * fac is normally distributed and independent
 }
 
-int RandomRange(int min, int max)
+int RandomRange(struct rng_t *ctx, int min, int max)
 {
-	return (int)floor(Random() * (max - min + 1)) + min;
+	return (int)floor(Random(ctx) * (max - min + 1)) + min;
 }
 
-int RandomRangeNonUniform(int x, int min, int max)
+int RandomRangeNonUniform(struct rng_t *ctx, int x, int min, int max)
 {
-	return (((RandomRange(0, x) | RandomRange(min, max))) % (max - min + 1)) + min;
+	return (((RandomRange(ctx, 0, x) | RandomRange(ctx, min, max))) % (max - min + 1)) + min;
 }
 
 /**
@@ -101,13 +117,13 @@ int RandomRangeNonUniform(int x, int min, int max)
  * @param ia Integer Order of the Gamma Distribution
  * @return A random-bak number
  */
-double Gamma(unsigned ia)
+double Gamma(struct rng_t *ctx, unsigned ia)
 {
 	if(ia < 6) {
 		// Use direct method, adding waiting times
 		double x = 1.0;
 		while(ia--)
-			x *= 1 - Random();
+			x *= 1 - Random(ctx);
 		return -log(x);
 	}
 
@@ -117,14 +133,14 @@ double Gamma(unsigned ia)
 	do {
 		double v1, v2;
 		do {
-			v1 = Random();
-			v2 = 2.0 * Random() - 1.0;
+			v1 = Random(ctx);
+			v2 = 2.0 * Random(ctx) - 1.0;
 		} while(v1 * v1 + v2 * v2 > 1.0);
 
 		y = v2 / v1;
 		s = sqrt(2.0 * am + 1.0) * y;
 		x = s + am;
-	} while(x < 0.0 || Random() > (1.0 + y * y) * exp(am * log(x / am) - s));
+	} while(x < 0.0 || Random(ctx) > (1.0 + y * y) * exp(am * log(x / am) - s));
 
 	return x;
 }
@@ -135,9 +151,9 @@ double Gamma(unsigned ia)
  *
  * @return A random-bak number
  */
-double Poisson(void)
+double Poisson(struct rng_t *ctx)
 {
-	return -log(1 - Random());
+	return -log(1 - Random(ctx));
 }
 
 /**
@@ -149,13 +165,13 @@ double Poisson(void)
  * @param limit The largest sample to retrieve
  * @return A random-bak number
  */
-unsigned Zipf(double skew, unsigned limit)
+unsigned Zipf(struct rng_t *ctx, double skew, unsigned limit)
 {
 	double b = pow(2., skew - 1.);
 	double x, t;
 	do {
-		x = floor(pow(Random(), -1. / skew - 1.));
+		x = floor(pow(Random(ctx), -1. / skew - 1.));
 		t = pow(1. + 1. / x, skew - 1.);
-	} while(x > limit || Random() * x * (t - 1.) * b > t * (b - 1.));
+	} while(x > limit || Random(ctx) * x * (t - 1.) * b > t * (b - 1.));
 	return (unsigned)x;
 }

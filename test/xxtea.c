@@ -8,7 +8,7 @@
  */
 #include <test.h>
 
-#include <lib/random/xxtea.h>
+#include "xxtea.h"
 
 #include <stdlib.h>
 #include <string.h>
