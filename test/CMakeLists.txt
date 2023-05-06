@@ -3,6 +3,7 @@
 
 # Retrieve and make available the testing framework
 include(FetchContent)
+set(IMPORT_AS_LIB ON)
 FetchContent_Declare(rstest
         GIT_REPOSITORY https://github.com/ROOT-Sim/testing-framework.git
         GIT_TAG        origin/master

@@ -12,6 +12,8 @@ add_compile_options(-Wall -Wextra -pedantic)
 
 add_subdirectory(src)
 
-# Run the tests
-enable_testing()
-add_subdirectory(test)
+if(NOT IMPORT_AS_LIB)
+    # Run the tests
+    enable_testing()
+    add_subdirectory(test)
+endif()
