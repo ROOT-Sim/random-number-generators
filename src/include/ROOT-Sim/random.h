@@ -27,3 +27,5 @@ extern int RandomRangeNonUniform(struct rng_t *ctx, int x, int min, int max);
 extern double Gamma(struct rng_t *ctx, unsigned ia);
 extern double Poisson(struct rng_t *ctx);
 extern unsigned Zipf(struct rng_t *ctx, double skew, unsigned limit);
+
+#define Expent(state, mean) ((mean) * (-log(1. - Random(state))))
