@@ -34,7 +34,7 @@ static uint64_t master_seed = 0;
 
 static void init(void) {
 	struct timeval t;
-
+	gettimeofday(&t, NULL);
 	master_seed = ((t.tv_sec * 1000000ULL + t.tv_usec) * 1000) % INT64_MAX;
 }
 __attribute__((section(".init_array"))) __typeof__(init) *__init = init;
