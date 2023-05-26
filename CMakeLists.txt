@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2008-2023 HPDCS Group <rootsim@googlegroups.com>
 # SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.12)
 project("ROOT-RNG" LANGUAGES C DESCRIPTION "The ROOT-Sim Random Number Generators library")
 
