@@ -9,11 +9,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         compiler: [ clang, gcc ]
         type: [ Debug, Release ]
+        exclude:
+          - os: macos-latest
+            compiler: gcc
+        include:
+          - os: macos-latest
+            compiler: gcc-11
+            type: Debug
+          - os: macos-latest
+            compiler: gcc-11
+            type: Release
     steps:
-      - name: Checkpout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
       - name: Initialize Environment
         uses: ROOT-Sim/ci-actions/init@v1.2
