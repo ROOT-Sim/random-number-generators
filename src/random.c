@@ -38,7 +38,6 @@ int gettimeofday(struct timeval* tp, void* tzp) {
 }
 #elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
 #include <sys/time.h>
-#include <stdio.h>
 #endif
 
 #define intrinsics_clz(x)                                                                                              \
