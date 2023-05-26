@@ -38,6 +38,7 @@ int gettimeofday(struct timeval* tp, void* tzp) {
 }
 #elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
 #include <sys/time.h>
+#include <stdio.h>
 #endif
 
 #define intrinsics_clz(x)                                                                                              \
@@ -54,20 +55,12 @@ int gettimeofday(struct timeval* tp, void* tzp) {
 
 uint64_t master_seed = 0;
 
+__attribute__((used)) __attribute__((constructor))
 static void init(void) {
 	struct timeval t;
 	gettimeofday(&t, NULL);
 	master_seed = ((t.tv_sec * 1000000ULL + t.tv_usec) * 1000) % INT64_MAX;
 }
-
-#if defined(_WIN32) && defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
-#elif defined(__APPLE__) && defined(__MACH__)
-__attribute__((used)) __attribute__((section("__DATA,__mod_init_func")))
-#else
-__attribute__((used)) __attribute__((section (".init_array")))
-#endif
-__typeof__(init) *__init = init;
 
 static const uint32_t xxtea_seeding_key[4] = {UINT32_C(0xd0a8f58a), UINT32_C(0x33359424), UINT32_C(0x09baa55b),
     UINT32_C(0x80e1bdb0)};
