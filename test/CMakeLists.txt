@@ -10,11 +10,12 @@ FetchContent_Declare(rstest
         )
 FetchContent_MakeAvailable(rstest)
 
+test_program(init init.c)
+test_program_link_libraries(init rsrng)
 test_program(numerical numerical.c)
 test_program_link_libraries(numerical rsrng)
 test_program(xxtea xxtea.c)
 test_program_link_libraries(xxtea rsrng)
-
 
 # TODO: The following is garbage and will be removed soon
 target_include_directories(test_numerical PRIVATE ${CMAKE_SOURCE_DIR}/src/include)

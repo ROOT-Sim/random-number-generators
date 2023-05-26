@@ -16,7 +16,29 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
+
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <time.h>
+#ifndef _TIMEVAL_DEFINED /* also in winsock[2].h */
+#define _TIMEVAL_DEFINED
+struct timeval {
+	long tv_sec;
+	long tv_usec;
+};
+#endif /* _TIMEVAL_DEFINED */
+
+int gettimeofday(struct timeval* tp, void* tzp) {
+	DWORD t;
+	t = timeGetTime();
+	tp->tv_sec = t / 1000;
+	tp->tv_usec = t % 1000;
+	return 0;
+}
+#elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
 #include <sys/time.h>
+#endif
 
 #define intrinsics_clz(x)                                                                                              \
 	__extension__({                                                                                                \
@@ -30,14 +52,22 @@
 
 #define unlikely(exp) __builtin_expect((exp), 0)
 
-static uint64_t master_seed = 0;
+uint64_t master_seed = 0;
 
 static void init(void) {
 	struct timeval t;
 	gettimeofday(&t, NULL);
 	master_seed = ((t.tv_sec * 1000000ULL + t.tv_usec) * 1000) % INT64_MAX;
 }
-__attribute__((section(".init_array"))) __typeof__(init) *__init = init;
+
+#if defined(_WIN32) && defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+#elif defined(__APPLE__) && defined(__MACH__)
+__attribute__((used)) __attribute__((section("__DATA,__mod_init_func")))
+#else
+__attribute__((used)) __attribute__((section (".init_array")))
+#endif
+__typeof__(init) *__init = init;
 
 static const uint32_t xxtea_seeding_key[4] = {UINT32_C(0xd0a8f58a), UINT32_C(0x33359424), UINT32_C(0x09baa55b),
     UINT32_C(0x80e1bdb0)};
