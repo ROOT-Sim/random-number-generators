@@ -1,5 +1,5 @@
 /**
- * @file lib/random-bak/xoroshiro.h
+ * @file lsrc/xoroshiro.h
  *
  * @brief Xoroshiro RNG support functions
  *
