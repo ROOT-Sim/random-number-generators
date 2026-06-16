@@ -10,4 +10,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: REUSE check
-        uses: ROOT-Sim/ci-actions/reuse-check@v1.2
+        uses: ROOT-Sim/ci-actions/reuse-check@v1.4
