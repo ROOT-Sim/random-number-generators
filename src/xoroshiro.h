@@ -1,5 +1,5 @@
 /**
- * @file lsrc/xoroshiro.h
+ * @file src/xoroshiro.h
  *
  * @brief Xoroshiro RNG support functions
  *
@@ -7,6 +7,8 @@
  *
  * SPDX-FileCopyrightText: 2008-2021 D. Blackman and S. Vigna <vigna@acm.org>
  * SPDX-License-Identifier: CC0-1.0
+ * SPDX-FileCopyrightText: 2008-2026 HPCS Group <rootsim@googlegroups.com>
+ * SPDX-License-Identifier: GPL-3.0-only
  */
 #pragma once
 

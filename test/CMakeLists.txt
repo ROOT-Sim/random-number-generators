@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2008-2023 HPDCS Group <rootsim@googlegroups.com>
+# SPDX-FileCopyrightText: 2008-2026 HPCS Group <rootsim@googlegroups.com>
 # SPDX-License-Identifier: GPL-3.0-only
 
 # Retrieve and make available the testing framework
@@ -17,6 +17,3 @@ test_program_link_libraries(numerical rsrng)
 test_program(xxtea xxtea.c)
 test_program_link_libraries(xxtea rsrng)
 
-# TODO: The following is garbage and will be removed soon
-target_include_directories(test_numerical PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
-target_include_directories(test_xxtea PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
