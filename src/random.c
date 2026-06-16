@@ -5,7 +5,7 @@
  *
  * Piece-Wise Deterministic Random Number Generators.
  *
- * SPDX-FileCopyrightText: 2008-2023 HPDCS Group <rootsim@googlegroups.com>
+ * SPDX-FileCopyrightText: 2008-2026 HPCS Group <rootsim@googlegroups.com>
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include <ROOT-Sim/random.h>
@@ -30,10 +30,10 @@ struct timeval {
 #endif /* _TIMEVAL_DEFINED */
 
 int gettimeofday(struct timeval* tp, void* tzp) {
-	DWORD t;
-	t = timeGetTime();
+	(void)tzp;
+	DWORD t = GetTickCount();
 	tp->tv_sec = t / 1000;
-	tp->tv_usec = t % 1000;
+	tp->tv_usec = (t % 1000) * 1000;
 	return 0;
 }
 #elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))

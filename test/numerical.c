@@ -3,7 +3,7 @@
  *
  * @brief Test: rollbackable RNG
  *
- * SPDX-FileCopyrightText: 2008-2023 HPDCS Group <rootsim@googlegroups.com>
+ * SPDX-FileCopyrightText: 2008-2026 HPCS Group <rootsim@googlegroups.com>
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include <test.h>
@@ -120,13 +120,37 @@ static int random_range_test(_unused void *_)
 
 	return passed;
 }
+static int ks_aggregation_test(_unused void *_)
+{
+	int runs = 10000;
+	int failures = 0;
+	for(int i = 0; i < runs; i++) {
+		if(kolmogorov(1000, Random) != 0) {
+			failures++;
+		}
+	}
+	
+	/* 
+	 * The KS threshold in kolmogorov() corresponds to alpha = 0.02.
+	 * Over 10,000 independent runs, the expected number of failures is 10000 * 0.02 = 200.
+	 * The standard deviation is sqrt(10000 * 0.02 * 0.98) = 14.
+	 * We accept failures within +/- 4 standard deviations: [144, 256].
+	 * Probability of false positive is practically 0 (< 0.00006).
+	 */
+	test_assert(failures >= 144 && failures <= 256);
 
+	return 0;
+}
+
+extern uint64_t master_seed;
 
 int main(void)
 {
+	master_seed = 42;
 	initialize_stream(0, &ctx);
 
 	test("Kolmogorov-Smirnov test on Random(&ctx)", aux_ks_test, NULL);
+	test("Kolmogorov-Smirnov aggregated rejection rate test", ks_aggregation_test, NULL);
 	test("Functional test on RandomRange()", random_range_test, NULL);
 	test("Functional test on RandomRangeNonUniform()", random_range_non_uniform_test, NULL);
 }

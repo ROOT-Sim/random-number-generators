@@ -17,14 +17,14 @@ jobs:
             compiler: gcc
         include:
           - os: macos-latest
-            compiler: gcc-11
+            compiler: gcc-14
             type: Debug
           - os: macos-latest
-            compiler: gcc-11
+            compiler: gcc-14
             type: Release
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Initialize Environment
         uses: ROOT-Sim/ci-actions/init@v1.4
         with:
